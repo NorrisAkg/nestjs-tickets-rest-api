@@ -40,4 +40,14 @@ export class TicketsService {
 
         return response;
     }
+
+    async findById(ticketId: TicketModel["id"], withAuthor?: boolean): Promise<TicketModel> {
+        const ticket = await this.ticketRepository.findById(ticketId, withAuthor);
+
+        if (!ticket) {
+            throw new NotFoundException("Ticket not found");
+        }
+
+        return ticket;
+    }
 }

@@ -43,9 +43,12 @@ export class TicketsRepository implements TicketRepositoryInterface {
         };
     }
 
-    findById(id: string): Promise<TicketModel | null> {
+    findById(id: string, withAuthor?: boolean): Promise<TicketModel | null> {
         return this.prisma.ticket.findUnique({
-            where: { id }
+            where: { id },
+            include: {
+                author: !!withAuthor
+            }
         });
     }
 

@@ -4,6 +4,9 @@ import { TicketModel } from 'generated/prisma/models';
 import { PrismaService } from 'src/prisma.service';
 import { PrismaPromise } from '@prisma/client/runtime/client';
 import { CreateTicketDto } from './dto/create-ticket.dto';
+import { UpdateTicketDto } from './dto/update-ticket.dto';
+import { FilterTicketsDto } from './dto/filter-tickets.dto';
+import { filter } from 'rxjs';
 
 @Injectable()
 export class TicketsRepository implements TicketRepositoryInterface {
@@ -16,34 +19,29 @@ export class TicketsRepository implements TicketRepositoryInterface {
         return response;
     }
 
-    async paginate({ withAuthor }: { withAuthor?: boolean }, { page = 1, perPage = 10 }: { page?: number, perPage: number }): Promise<{ data: TicketModel[], meta: { page: number, perPage: number, total: number, totalPages: number } }> {
-        const response = await this.prisma.ticket.findMany({
-            include: { author: withAuthor },
-            // cursor: {
-            //     id: (await this.prisma.ticket.findFirst({
-            //         orderBy: {
-            //             createdAt: 'asc'
-            //         }
-            //     }))?.id
-            // },
-            skip: page - 1,
-            take: perPage,
-        });
+    async paginate({ withAuthor }: { withAuthor?: boolean }, filterParams: FilterTicketsDto): Promise<{ data: TicketModel[], meta: { page: number, perPage: number, total: number, totalPages: number } }> {
+        console.log("filter params value", filterParams);
 
         const total = await this.prisma.ticket.count();
+
+        const response = await this.prisma.ticket.findMany({
+            include: { author: withAuthor },
+            skip: filterParams.perPage! * (Number(filterParams.page!) - 1),
+            take: filterParams.perPage,
+        });
 
         return {
             data: response,
             meta: {
-                page,
-                perPage,
+                page: filterParams.page!,
+                perPage: filterParams.perPage!,
                 total,
-                totalPages: Math.ceil(total / perPage)
+                totalPages: Math.ceil(total / (Number(filterParams.perPage) ?? 10))
             }
         };
     }
 
-    findById(id: string, withAuthor?: boolean): Promise<TicketModel | null> {
+    findById(id: TicketModel["id"], withAuthor?: boolean): Promise<TicketModel | null> {
         return this.prisma.ticket.findUnique({
             where: { id },
             include: {
@@ -56,8 +54,17 @@ export class TicketsRepository implements TicketRepositoryInterface {
         return await this.prisma.ticket.create({ data })
     }
 
-    delete(id: string): void {
-        this.prisma.ticket.delete({
+    async update(ticketId: TicketModel["id"], data: UpdateTicketDto): Promise<TicketModel> {
+        return await this.prisma.ticket.update({
+            where: {
+                id: ticketId
+            },
+            data
+        })
+    }
+
+    async delete(id: TicketModel["id"]): Promise<void> {
+        await this.prisma.ticket.delete({
             where: { id }
         })
     };

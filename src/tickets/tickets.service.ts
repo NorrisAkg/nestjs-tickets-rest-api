@@ -1,10 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { TicketsRepository } from './tickets.repository';
 import { TicketModel } from 'generated/prisma/models';
-import { PrismaPromise } from '@prisma/client/runtime/client';
-import { TicketResource } from './dto/tickets.resource.dto';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UsersRepository } from 'src/users/users.repository';
+import { UpdateTicketDto } from './dto/update-ticket.dto';
+import { FilterTicketsDto } from './dto/filter-tickets.dto';
 
 @Injectable()
 export class TicketsService {
@@ -31,11 +31,13 @@ export class TicketsService {
         return this.ticketRepository.create(data);
     }
 
-    async getAllPaginated(): Promise<{ data: TicketModel[], meta: { page: number, perPage: number, total: number, totalPages: number } }> {
+    async getAllPaginated(filterParams: FilterTicketsDto): Promise<{ data: TicketModel[], meta: { page: number, perPage: number, total: number, totalPages: number } }> {
+        console.log("display params in service", filterParams)
         const response = await this.ticketRepository.paginate({
             withAuthor: true
         }, {
-            perPage: 10
+            page: filterParams.page ?? 1,
+            perPage: filterParams.perPage ?? 10,
         });
 
         return response;
@@ -49,5 +51,25 @@ export class TicketsService {
         }
 
         return ticket;
+    }
+
+    async update(ticketId: TicketModel["id"], data: UpdateTicketDto): Promise<TicketModel> {
+        const ticket = await this.ticketRepository.findById(ticketId);
+
+        if (!ticket) {
+            throw new NotFoundException("Ticket not found");
+        }
+
+        return await this.ticketRepository.update(ticketId, data);
+    }
+
+    async delete(ticketId: TicketModel["id"]): Promise<void> {
+        const ticket = await this.ticketRepository.findById(ticketId);
+
+        if (!ticket) {
+            throw new NotFoundException("Ticket not found");
+        }
+
+        return this.ticketRepository.delete(ticketId);
     }
 }

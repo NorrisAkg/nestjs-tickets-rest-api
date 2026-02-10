@@ -1,5 +1,3 @@
-import { ModelResource } from "./model.resource.dto";
-
 export class PaginatedResource<T> {
     data: Array<T>;
     meta: {

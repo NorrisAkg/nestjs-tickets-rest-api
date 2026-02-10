@@ -1,5 +1,6 @@
 import { TicketModel, UserModel } from 'generated/prisma/models';
 import { TicketResource } from 'src/tickets/dto/tickets.resource.dto';
+import { Ticket } from 'src/tickets/entities/ticket';
 export class UserResource {
     id: string
     name: string
@@ -8,7 +9,7 @@ export class UserResource {
     updatedAt: string;
     tickets?: TicketResource[];
 
-    constructor(user: UserModel & { tickets?: TicketModel[] }) {
+    constructor(user: UserModel & { tickets?: Ticket[] }) {
         this.id = user.id;
         this.name = user.name!;
         this.email = user.email ?? "";

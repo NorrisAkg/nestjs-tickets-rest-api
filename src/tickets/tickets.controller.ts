@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Query } from '@nestjs/common';
 import { TicketsService } from './tickets.service';
 import { TicketResource } from './dto/tickets.resource.dto';
-import { PaginatedResource } from 'src/dto/paginated.resource.dto';
+import { PaginatedResource } from 'src/common/dto/paginated.resource.dto';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { TicketModel } from 'generated/prisma/models';
 import { UpdateTicketDto } from './dto/update-ticket.dto';

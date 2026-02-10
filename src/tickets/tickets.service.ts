@@ -5,6 +5,7 @@ import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UsersRepository } from 'src/users/users.repository';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
 import { FilterTicketsDto } from './dto/filter-tickets.dto';
+import { Ticket } from './entities/ticket';
 
 @Injectable()
 export class TicketsService {
@@ -18,20 +19,19 @@ export class TicketsService {
         });
     }
 
-    async create(data: CreateTicketDto): Promise<TicketModel> {
-        console.log("author id", data.authorId);
+    async create(data: CreateTicketDto): Promise<Ticket> {
         const user = await this.userRepository.findById(data.authorId);
-
-        console.log(user);
 
         if (!user) {
             throw new NotFoundException("User not found");
         }
 
-        return this.ticketRepository.create(data);
+        const ticket = await this.ticketRepository.create(data);
+
+        return new Ticket(ticket);
     }
 
-    async getAllPaginated(filterParams: FilterTicketsDto): Promise<{ data: TicketModel[], meta: { page: number, perPage: number, total: number, totalPages: number } }> {
+    async getAllPaginated(filterParams: FilterTicketsDto): Promise<{ data: Ticket[], meta: { page: number, perPage: number, total: number, totalPages: number } }> {
         console.log("display params in service", filterParams)
         const response = await this.ticketRepository.paginate({
             withAuthor: true
@@ -40,30 +40,34 @@ export class TicketsService {
             perPage: filterParams.perPage ?? 10,
         });
 
-        return response;
+        const mappedTickets = response.data.map(t => new Ticket(t));
+
+        return { ...response, data: mappedTickets };
     }
 
-    async findById(ticketId: TicketModel["id"], withAuthor?: boolean): Promise<TicketModel> {
+    async findById(ticketId: Ticket["id"], withAuthor?: boolean): Promise<Ticket> {
         const ticket = await this.ticketRepository.findById(ticketId, withAuthor);
 
         if (!ticket) {
             throw new NotFoundException("Ticket not found");
         }
 
-        return ticket;
+        return new Ticket(ticket);
     }
 
-    async update(ticketId: TicketModel["id"], data: UpdateTicketDto): Promise<TicketModel> {
+    async update(ticketId: Ticket["id"], data: UpdateTicketDto): Promise<Ticket> {
         const ticket = await this.ticketRepository.findById(ticketId);
 
         if (!ticket) {
             throw new NotFoundException("Ticket not found");
         }
 
-        return await this.ticketRepository.update(ticketId, data);
+        const response = await this.ticketRepository.update(ticketId, data);
+
+        return new Ticket(response);
     }
 
-    async delete(ticketId: TicketModel["id"]): Promise<void> {
+    async delete(ticketId: Ticket["id"]): Promise<void> {
         const ticket = await this.ticketRepository.findById(ticketId);
 
         if (!ticket) {

@@ -1,7 +1,8 @@
 import { TicketModel, UserModel } from 'generated/prisma/models';
 import { TicketStatus } from 'generated/prisma/enums';
 import { UserResource } from 'src/users/dto/users.resource.dto';
-import { ModelResource } from 'src/dto/model.resource.dto';
+import { ModelResource } from 'src/common/dto/model.resource.dto';
+import { Ticket } from '../entities/ticket';
 export class TicketResource extends ModelResource {
     id: string
     title: string
@@ -12,7 +13,7 @@ export class TicketResource extends ModelResource {
     updatedAt: string;
     author?: UserResource;
 
-    constructor(ticket: TicketModel & { author?: UserModel }) {
+    constructor(ticket: Ticket) {
         super();
         this.id = ticket.id;
         this.title = ticket.title;

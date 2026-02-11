@@ -1,6 +1,6 @@
-import { User } from 'generated/prisma/client';
 import { TicketStatus } from 'generated/prisma/enums';
 import { TicketModel } from 'generated/prisma/models';
+import { User } from 'src/users/entities/user';
 export class Ticket implements Partial<TicketModel> {
     public readonly id: string;
     title: string;
@@ -9,14 +9,15 @@ export class Ticket implements Partial<TicketModel> {
     createdAt: Date;
     updatedAt: Date;
     authorId: string;
-    author?: User | undefined;
+    author?: User;
 
-    constructor(ticketModel: TicketModel) {
+    constructor(ticketModel: TicketModel & { author?: User }) {
         this.id = ticketModel.id;
         this.title = ticketModel.title;
         this.description = ticketModel.description;
         this.status = ticketModel.status;
         this.authorId = ticketModel.authorId;
+        this.author = ticketModel.author;
         this.createdAt = ticketModel.createdAt;
         this.updatedAt = ticketModel.updatedAt;
     }

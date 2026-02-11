@@ -20,9 +20,10 @@ export class TicketsRepository implements TicketRepositoryInterface {
     }
 
     async paginate({ withAuthor }: { withAuthor?: boolean }, filterParams: FilterTicketsDto): Promise<{ data: TicketModel[], meta: { page: number, perPage: number, total: number, totalPages: number } }> {
+        const { page, perPage, search } = filterParams;
         const where = {
             title: {
-                contains: filterParams.search
+                contains: search
             }
         };
 
@@ -31,18 +32,18 @@ export class TicketsRepository implements TicketRepositoryInterface {
             this.prisma.ticket.findMany({
                 where,
                 include: { author: withAuthor },
-                skip: filterParams.perPage! * (Number(filterParams.page!) - 1),
-                take: filterParams.perPage,
+                skip: perPage! * (page! - 1),
+                take: perPage,
             })
         ]);
 
         return {
             data: tickets,
             meta: {
-                page: filterParams.page!,
-                perPage: filterParams.perPage!,
+                page: page!,
+                perPage: perPage!,
                 total,
-                totalPages: Math.ceil(total / (Number(filterParams.perPage) ?? 10))
+                totalPages: Math.ceil(total / (perPage ?? 10))
             }
         };
     }

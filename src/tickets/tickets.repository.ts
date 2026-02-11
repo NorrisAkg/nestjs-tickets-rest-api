@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { TicketRepositoryInterface } from './interfaces/tickets.repository.interface';
 import { TicketModel } from 'generated/prisma/models';
-import { PrismaService } from 'src/prisma.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { PrismaPromise } from '@prisma/client/runtime/client';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';

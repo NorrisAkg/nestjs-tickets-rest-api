@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { UserModel } from 'generated/prisma/models';
-import { PrismaService } from 'src/prisma.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 /** This service uses prisma to manage db users table */

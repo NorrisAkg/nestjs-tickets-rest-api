@@ -20,18 +20,24 @@ export class TicketsRepository implements TicketRepositoryInterface {
     }
 
     async paginate({ withAuthor }: { withAuthor?: boolean }, filterParams: FilterTicketsDto): Promise<{ data: TicketModel[], meta: { page: number, perPage: number, total: number, totalPages: number } }> {
-        console.log("filter params value", filterParams);
+        const where = {
+            title: {
+                contains: filterParams.search
+            }
+        };
 
-        const total = await this.prisma.ticket.count();
-
-        const response = await this.prisma.ticket.findMany({
-            include: { author: withAuthor },
-            skip: filterParams.perPage! * (Number(filterParams.page!) - 1),
-            take: filterParams.perPage,
-        });
+        const [total, tickets] = await this.prisma.$transaction([
+            this.prisma.ticket.count({ where }),
+            this.prisma.ticket.findMany({
+                where,
+                include: { author: withAuthor },
+                skip: filterParams.perPage! * (Number(filterParams.page!) - 1),
+                take: filterParams.perPage,
+            })
+        ]);
 
         return {
-            data: response,
+            data: tickets,
             meta: {
                 page: filterParams.page!,
                 perPage: filterParams.perPage!,

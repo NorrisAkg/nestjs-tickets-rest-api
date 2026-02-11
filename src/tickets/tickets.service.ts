@@ -31,13 +31,13 @@ export class TicketsService {
         return new Ticket(ticket);
     }
 
-    async getAllPaginated(filterParams: FilterTicketsDto): Promise<{ data: Ticket[], meta: { page: number, perPage: number, total: number, totalPages: number } }> {
-        console.log("display params in service", filterParams)
+    async getAllPaginated({ page = 1, perPage = 10, search }: FilterTicketsDto): Promise<{ data: Ticket[], meta: { page: number, perPage: number, total: number, totalPages: number } }> {
         const response = await this.ticketRepository.paginate({
             withAuthor: true
         }, {
-            page: filterParams.page ?? 1,
-            perPage: filterParams.perPage ?? 10,
+            page,
+            perPage,
+            search
         });
 
         const mappedTickets = response.data.map(t => new Ticket(t));

@@ -13,7 +13,7 @@ export class TicketsController {
 
     @Get()
     async index(@Query() filterDto: FilterTicketsDto) {
-        let tickets = await this.ticketsService.getAllPaginated({ page: filterDto.page, perPage: filterDto.perPage });
+        let tickets = await this.ticketsService.getAllPaginated(filterDto);
         const data = tickets.data.map(res => new TicketResource(res));
         const response = { ...tickets, data }
 

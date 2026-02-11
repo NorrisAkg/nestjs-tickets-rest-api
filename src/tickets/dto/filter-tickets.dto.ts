@@ -14,5 +14,5 @@ export class FilterTicketsDto {
 
     @IsString()
     @IsOptional()
-    title?: string;
+    search?: string;
 }

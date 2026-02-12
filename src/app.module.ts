@@ -1,13 +1,11 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
-import { PrismaService } from './prisma/prisma.service';
 import { TicketsModule } from './tickets/tickets.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
-import { JwtModule } from '@nestjs/jwt';
-import { jwtConstants } from './auth/constants';
-
+import { MailerModule } from '@nestjs-modules/mailer';
+import { EjsAdapter } from '@nestjs-modules/mailer/dist/adapters/ejs.adapter';
 
 @Module({
   imports: [
@@ -18,7 +16,21 @@ import { jwtConstants } from './auth/constants';
     TicketsModule,
     PrismaModule,
     AuthModule,
+    MailerModule.forRoot({
+      transport: 'smtps://user@domain.com:pass@smtp.domain.com',
+      defaults: {
+        from: '"nest-modules" <modules@nestjs.com>',
+      },
+      template: {
+        dir: __dirname + '/templates',
+        adapter: new EjsAdapter(),
+        options: {
+          strict: true,
+        },
+      },
+    }),
   ],
+
   controllers: [],
   providers: [],
 })

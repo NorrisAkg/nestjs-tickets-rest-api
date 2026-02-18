@@ -1,6 +1,7 @@
 import { TicketStatus } from 'generated/prisma/enums';
 import { TicketModel } from 'generated/prisma/models';
-import { User } from 'src/users/entities/user';
+import { User } from 'src/users/entities/user.entity';
+
 export class Ticket implements Partial<TicketModel> {
     public readonly id: string;
     title: string;

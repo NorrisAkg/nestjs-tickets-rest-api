@@ -2,10 +2,11 @@ import { Module } from '@nestjs/common';
 import { TicketsController } from './tickets.controller';
 import { TicketsService } from './tickets.service';
 import { TicketsRepository } from './tickets.repository';
-import { UsersRepository } from 'src/users/users.repository';
+import { UsersModule } from 'src/users/users.module';
 
 @Module({
+  imports: [UsersModule],
   controllers: [TicketsController],
-  providers: [TicketsService, TicketsRepository, UsersRepository]
+  providers: [TicketsService, TicketsRepository],
 })
 export class TicketsModule { }

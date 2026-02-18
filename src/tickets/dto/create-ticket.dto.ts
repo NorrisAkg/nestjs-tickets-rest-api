@@ -1,5 +1,4 @@
-import { IsNotEmpty, IsString } from "class-validator";
-import { UserModel } from "generated/prisma/models";
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateTicketDto {
     @IsString()
@@ -9,8 +8,4 @@ export class CreateTicketDto {
     @IsString()
     @IsNotEmpty()
     description: string;
-
-    @IsString()
-    @IsNotEmpty()
-    authorId: UserModel['id'];
 }

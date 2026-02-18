@@ -21,15 +21,28 @@ enum TicketStatus {
 }
 
 model User {
+  id            String         @id @unique @default(cuid())
+  email         String         @unique
+  name          String?
+  password      String
+  tickets       Ticket[]
+  refreshTokens RefreshToken[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @default(now()) @updatedAt
+
+  @@map("users")
+}
+
+model RefreshToken {
   id        String   @id @unique @default(cuid())
-  email     String   @unique
-  name      String?
-  password  String
-  tickets   Ticket[]
+  userId    String
+  tokenHash String
+  expiresAt DateTime
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  @@map("users")
+  @@map("refresh_tokens")
 }
 
 model Ticket {
@@ -38,7 +51,7 @@ model Ticket {
   description String?
   status      TicketStatus @default(OPEN)
   authorId    String
-  author      User         @relation(fields: [authorId], references: [id])
+  author      User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @default(now()) @updatedAt
 

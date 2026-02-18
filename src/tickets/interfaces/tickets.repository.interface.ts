@@ -1,4 +1,3 @@
-import { PrismaPromise } from '@prisma/client/runtime/client';
 import type { TicketModel } from '../../../generated/prisma/models/Ticket';
 import { CreateTicketDto } from '../dto/create-ticket.dto';
 import { UpdateTicketDto } from '../dto/update-ticket.dto';
@@ -10,12 +9,12 @@ export interface TicketRepositoryInterface {
 
     paginate({ withAuthor }: { withAuthor?: boolean }, filterParams: FilterTicketsDto): Promise<{ data: TicketModel[], meta: { page: number, perPage: number, total: number, totalPages: number } }>
 
-    create: (data: CreateTicketDto) => Promise<TicketModel>;
+    create: (data: CreateTicketDto & { authorId: string }) => Promise<TicketModel>;
 
     update: (ticketId: TicketModel["id"], data: UpdateTicketDto) => Promise<TicketModel>;
 
     /** Return one ticket by id or null if not found */
     findById: (id: TicketModel["id"]) => Promise<TicketModel | null>;
 
-    delete: (id: TicketModel["id"]) => void;
+    delete: (id: TicketModel["id"]) => Promise<void>;
 }

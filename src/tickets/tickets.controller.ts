@@ -1,6 +1,6 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, Request } from '@nestjs/common';
 import { TicketsService } from './tickets.service';
-import { TicketResource } from './dto/tickets.resource.dto';
+import { TicketResource } from './dto/ticket.resource';
 import { PaginatedResource } from 'src/common/dto/paginated.resource.dto';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { TicketModel } from 'generated/prisma/models';
@@ -12,43 +12,43 @@ export class TicketsController {
     constructor(private readonly ticketsService: TicketsService) { }
 
     @Get()
-    async index(@Query() filterDto: FilterTicketsDto) {
-        let tickets = await this.ticketsService.getAllPaginated(filterDto);
-        const data = tickets.data.map(res => new TicketResource(res));
-        const response = { ...tickets, data }
-
-        return new PaginatedResource<TicketResource>(response);
+    async index(@Query() filterDto: FilterTicketsDto): Promise<PaginatedResource<TicketResource>> {
+        const tickets = await this.ticketsService.getAllPaginated(filterDto);
+        const data = tickets.data.map(t => new TicketResource(t));
+        return new PaginatedResource<TicketResource>({ ...tickets, data });
     }
 
     @Post()
-    async create(@Body() data: CreateTicketDto) {
-        const createdTicket = await this.ticketsService.create(data);
-
-        return new TicketResource(createdTicket);
-    }
-
-    @Get(":id")
-    async show(@Param("id") id: TicketModel["id"], @Query("with_author") withAuthor: boolean) {
-        const ticket = await this.ticketsService.findById(id, withAuthor);
-
+    async create(
+        @Body() data: CreateTicketDto,
+        @Request() req: { user: { sub: string } },
+    ): Promise<TicketResource> {
+        const ticket = await this.ticketsService.create(data, req.user.sub);
         return new TicketResource(ticket);
     }
 
-    @Patch(":id")
-    async update(@Param("id") id: TicketModel["id"], @Body() data: UpdateTicketDto) {
-        const updatedTicket = await this.ticketsService.update(id, data);
-
-        return new TicketResource(updatedTicket);
+    @Get(':id')
+    async show(
+        @Param('id') id: TicketModel['id'],
+        @Query('with_author') withAuthor: boolean,
+    ): Promise<TicketResource> {
+        const ticket = await this.ticketsService.findById(id, withAuthor);
+        return new TicketResource(ticket);
     }
 
-    @Delete(":id")
-    @HttpCode(204)
-    async delete(@Param("id") id: TicketModel["id"]) {
-        await this.ticketsService.delete(id);
+    @Patch(':id')
+    async update(
+        @Param('id') id: TicketModel['id'],
+        @Body() data: UpdateTicketDto,
+    ): Promise<TicketResource> {
+        const ticket = await this.ticketsService.update(id, data);
+        return new TicketResource(ticket);
+    }
 
-        return {
-            message: "Ticket supprimé avec succès",
-            code: 204
-        };
+    @Delete(':id')
+    @HttpCode(HttpStatus.OK)
+    async delete(@Param('id') id: TicketModel['id']): Promise<{ message: string }> {
+        await this.ticketsService.delete(id);
+        return { message: 'Ticket deleted successfully' };
     }
 }

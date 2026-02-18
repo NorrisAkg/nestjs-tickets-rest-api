@@ -1,5 +1,5 @@
-import { UserModel } from "generated/prisma/models";
-import { Ticket } from "src/tickets/entities/ticket";
+import { UserModel } from 'generated/prisma/models';
+import { Ticket } from 'src/tickets/entities/ticket.entity';
 
 export class User {
     readonly id: string;
@@ -13,8 +13,8 @@ export class User {
         this.id = userModel.id;
         this.name = userModel.name!;
         this.email = userModel.email;
-        this.createdAt = userModel.createdAt;
-        this.updatedAt = userModel.updatedAt;
+        this.createdAt = new Date(userModel.createdAt);
+        this.updatedAt = new Date(userModel.updatedAt);
         this.tickets = userModel.tickets;
     }
 }

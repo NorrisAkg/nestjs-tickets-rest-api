@@ -2,11 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { UserModel } from 'generated/prisma/models';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { UsersRepositoryInterface } from './interfaces/users.repository.interface';
 
 @Injectable()
 /** This service uses prisma to manage db users table */
-export class UsersRepository {
+export class UsersRepository implements UsersRepositoryInterface {
     constructor(private readonly prisma: PrismaService) { }
+
     findById(id: UserModel["id"]): Promise<UserModel | null> {
         return this.prisma.user.findUnique({
             where: { id }
@@ -26,5 +29,12 @@ export class UsersRepository {
 
     create(data: CreateUserDto): Promise<UserModel> {
         return this.prisma.user.create({ data });
+    }
+
+    update(userId: UserModel["id"], data: UpdateUserDto): Promise<UserModel> {
+        return this.prisma.user.update({
+            where: { id: userId },
+            data: data
+        })
     }
 }
